@@ -1,0 +1,102 @@
+import random
+
+class Player:
+    def __init__(self, name, role, damage_range):
+        self.name = name
+        self.role = role
+        self.damage_range = damage_range
+        self.hit_points = 100
+        self.gold = 10
+        self.monsters_fought = 0
+        self.turns_alive = 0
+
+    def attack(self):
+        return random.choice(self.damage_range)
+
+    def heal(self, amount):
+        self.hit_points += amount
+
+    def take_damage(self, amount):
+        self.hit_points = max(0, self.hit_points - amount)
+
+    def add_gold(self, amount):
+        self.gold += amount
+
+    def end_round(self):
+        return (self.name, "the", self.role, " | HP: ", self.hit_points, " | Gold: ", self.gold, " | Monsters Fought: ", self.monsters_fought, " | Turns Alive: ", self.turns_alive)
+    
+
+class Encounter:
+    def __init__(self, name, damage_range):
+        self.name = name
+        self.damage_range = damage_range
+
+    def attack(self):
+        return random.choice(self.damage_range)
+
+class Game():
+    def pace():
+        answer = input("Continue? ('y' or 'n')")
+        if answer == 'n':
+                quit()
+    def __init__(self, player1, player2):
+        self.players = [player1, player2]
+        self.monsters = [
+            Encounter("Goblin", [1,2,3,4]),
+            Encounter("Orc", [2,3,4,5,6]),
+            Encounter("Devil", [3,4,5,6,7,8]),
+            Encounter("Zombie", [1,2,3,4,5]),
+            Encounter("Dragon", [4,5,6,7,8,9,10]),
+            Encounter("Hobgoblin", [3,4,5,6,7])
+        ]
+    def encounter(self, player):
+        encounter_type = random.choice(["monster", "gold", "potion"])
+
+        if encounter_type == "monster":
+            monster = random.choice(self.monsters)
+            print(player.name, "encounters a", monster.name,"!")
+            monster_damage = monster.attack()
+            player_damage = player.attack()
+            player.take_damage(monster_damage)
+            print(monster.name,"attacks for", monster_damage,"damage.")
+            print(player.name,"attacks back for", player_damage,"damage.")
+            player.monsters_fought += 1
+
+        elif encounter_type == "gold":
+            gold_found = random.randint(5, 20)
+            player.add_gold(gold_found)
+            print(player.name," finds a treasure chest with ",gold_found," gold pieces!")
+
+        elif encounter_type == "potion":
+            potion_heal = random.randint(5, 15)
+            player.heal(potion_heal)
+            print(player.name, "finds a potion and restores ", potion_heal," hit points!")
+
+    def play_round(self, player):
+
+        print(player.name,"moves.")
+
+        player.turns_alive += 1
+    
+        if random.random() < 0.5: 
+            self.encounter(player)
+        else:
+            player.heal(1)  
+            print(player.name,"rests and gains 1 hit point.")
+
+        print(player)
+
+    def play(self, rounds):
+        for round_number in range(1, rounds + 1):
+            print("Round", round_number)
+            for player in self.players:
+                if player.hit_points > 0:
+                    self.play_round(player)
+                else:
+                    print(player.name, "is unable to continue.")
+
+player1 = Player("John", "Dwarf", [1,2,3,4])
+player2 = Player("Luke", "Wizard", [1,2,3,4,5,6,7,8])
+
+game = Game(player1, player2)
+game.play(10) #Play 10 rounds
